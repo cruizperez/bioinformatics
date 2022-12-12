@@ -129,6 +129,7 @@ def parse_args() -> argparse.Namespace:  # pragma: no cover
         "-w",
         "--wrap",
         required=False,
+        type=int,
         help=(
             "The length to which sequences should be wrapped.\n"
             "By default no wrapping is applied, i.e. the whole sequence\n"
