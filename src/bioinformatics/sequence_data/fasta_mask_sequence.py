@@ -33,7 +33,7 @@ def get_targets_from_config(input_config: Path) -> Dict[str, Tuple[Any, Any]]:
     # Iterate over configuration file and get targets
     for info_row in config.itertuples():
         target_sequences[info_row._1] = (info_row._2, info_row._3)
-    print(target_sequences)
+
     # Return target sequence dictionary
     return target_sequences
 
