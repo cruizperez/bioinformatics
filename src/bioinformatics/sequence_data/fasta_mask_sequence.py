@@ -5,7 +5,6 @@ from pathlib import Path
 from sys import argv
 from typing import Any, Dict, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 from Bio import SeqIO
 
@@ -34,7 +33,7 @@ def get_targets_from_config(input_config: Path) -> Dict[str, Tuple[Any, Any]]:
     # Iterate over configuration file and get targets
     for info_row in config.itertuples():
         target_sequences[info_row._1] = (info_row._2, info_row._3)
-
+    print(target_sequences)
     # Return target sequence dictionary
     return target_sequences
 
@@ -49,7 +48,7 @@ def modify_fasta(
     """
     Reads a FASTA file, and identifies sequences that should be masked with a given masking character (N) by default.
     Then saves the entire original file and the masked sequences into another output FASTA file.
-    Lines can be wrapped to a desired length. 
+    Lines can be wrapped to a desired length.
 
     Args:
         input_file (Path): Input FASTA file.
@@ -70,8 +69,8 @@ def modify_fasta(
             if record.id in target_sequences:
                 # Get target positions
                 start_pos, end_pos = target_sequences[record.id]
-                start_index = 0 if np.isnan(start_pos) else start_pos - 1
-                end_index = len(record.seq) if np.isnan(end_pos) else end_pos
+                start_index = 0 if start_pos == -1 else start_pos - 1
+                end_index = len(record.seq) if end_pos == -1 else end_pos
 
                 # Replace the section of the sequence with 'N's
                 record.seq = (

@@ -47,8 +47,8 @@ def test_modify_fasta(tmp_path: Path, input_fasta: Path):
     # Define target sequences and positions
     target_sequences = {
         "seq1": (1, 9),
-        "seq2": (5, float("nan")),
-        "seq3": (float("nan"), float("nan")),
+        "seq2": (5, -1),
+        "seq3": (-1, -1),
     }
 
     expected_output = ">seq1\nNNNNNNNNNTCG\n" ">seq2\nATCGNNNNNNNN\n" ">seq3\nNNNNNNNNNNNN\n"
@@ -66,8 +66,8 @@ def test_modify_fasta_alternative_character(tmp_path: Path, input_fasta: Path):
     # Define target sequences and positions
     target_sequences = {
         "seq1": (1, 9),
-        "seq2": (5, float("nan")),
-        "seq3": (float("nan"), float("nan")),
+        "seq2": (5, -1),
+        "seq3": (-1, -1),
     }
 
     expected_output = ">seq1\nXXXXXXXXXTCG\n" ">seq2\nATCGXXXXXXXX\n" ">seq3\nXXXXXXXXXXXX\n"
@@ -85,8 +85,8 @@ def test_modify_fasta_alternative_wrapping(tmp_path: Path, input_fasta: Path):
     # Define target sequences and positions
     target_sequences = {
         "seq1": (1, 9),
-        "seq2": (5, float("nan")),
-        "seq3": (float("nan"), float("nan")),
+        "seq2": (5, -1),
+        "seq3": (-1, -1),
     }
 
     expected_output = ">seq1\nXXX\nXXX\nXXX\nTCG\n" ">seq2\nATC\nGXX\nXXX\nXXX\n" ">seq3\nXXX\nXXX\nXXX\nXXX\n"
