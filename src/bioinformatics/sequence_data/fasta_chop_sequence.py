@@ -138,12 +138,12 @@ def main() -> None:  # pragma: no cover
     args = parse_args()
     input_file = args.input
     output_file = args.output
-    target_sequences = args.targets
+    config = args.config
     length = args.length
     wrap_len = args.wrap
 
     # Read configuration file
-    chop_sequences(input_file, output_file, target_sequences, length, wrap_len)
+    chop_sequences(input_file, output_file, config, length, wrap_len)
 
 
 # Call the main() function if the script is run directly
