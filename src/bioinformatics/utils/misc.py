@@ -17,4 +17,4 @@ def comma_separated_list_str(value: str) -> List[str]:
     """
     if not value:
         return []
-    return value.split(',')
+    return value.split(",")

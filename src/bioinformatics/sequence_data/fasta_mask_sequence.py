@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 from sys import argv
-from typing import Any, Dict, Optional, Tuple
+from typing import Optional
 
 import pandas as pd
 from Bio import SeqIO
@@ -11,11 +11,11 @@ from Bio import SeqIO
 from bioinformatics.sequence_data.helpers import wrap_sequence_string
 
 
-def get_targets_from_config(input_config: Path) -> Dict[str, Tuple[Any, Any]]:
+def get_targets_from_config(input_config: Path) -> pd.DataFrame:
     """
     Reads a tab-delimited configuration file with the following columns:
     sequence_id   start_position_to_mask   end_position_to_mask
-    Returns a dictionare whose keys are the sequence ids and the values a tuple containing the start and end positions.
+    Converts to a pandas dataframe, fills NAs with -1 and returns it.
 
     Args:
         input_config (Path): Path to input configuration file.
@@ -23,25 +23,21 @@ def get_targets_from_config(input_config: Path) -> Dict[str, Tuple[Any, Any]]:
     Returns:
         Dict[str, Tuple[Any, Any]]: Dictionary with sequence ids and coordinates to mask.
     """
-    # Initialize empty dictionary to store sequence ids and positions
-    target_sequences = {}
-
     # Read configuration file
     config = pd.read_csv(input_config, sep="\t", header=None)
     config.fillna(-1, inplace=True)
+    config.columns = pd.core.indexes.base.Index(data=["seq_id", "start", "end"])
+    config['start'] = config['start'].astype(int)
+    config['end'] = config['end'].astype(int)
 
-    # Iterate over configuration file and get targets
-    for info_row in config.itertuples():
-        target_sequences[info_row._1] = (info_row._2, info_row._3)
-
-    # Return target sequence dictionary
-    return target_sequences
+    # Return dataframe
+    return config
 
 
 def modify_fasta(
     input_file: Path,
     output_file: Path,
-    target_sequences: Dict[str, Tuple[Any, Any]],
+    target_sequences: pd.DataFrame,
     masking_char: Optional[str] = "N",
     wrapping_len: Optional[int] = None,
 ) -> None:
@@ -53,29 +49,32 @@ def modify_fasta(
     Args:
         input_file (Path): Input FASTA file.
         output_file (Path): Output FASTA file.
-        target_sequences (Dict[str, Tuple[Any, Any]]): Dictionary with sequences to mask in the keys and a tuple
-                                                       containing the coordinates to mask as values.
+        target_sequences (pd.DataFrame): Dataframe with sequences to mask in the keys and a tuple containing the
+            coordinates to mask as values.
         masking_char (Optional[str], optional): Character to mask original sequence. Defaults to "N".
         wrapping_len (Optional[int], optional): Line length to which sequence should be wrapped. Defaults to None.
     """
     # Read the FASTA file
     sequences = SeqIO.parse(input_file, "fasta")
 
+    # Get the target sequence IDs
+    seq_ids = set(target_sequences["seq_id"])
+
     # Open output file
     with open(output_file, "w") as output:
         # Iterate over the sequences in the file
         for record in sequences:
             # Check if the current sequence is the one we want to modify
-            if record.id in target_sequences:
-                # Get target positions
-                start_pos, end_pos = target_sequences[record.id]
-                start_index = 0 if start_pos == -1 else start_pos - 1
-                end_index = len(record.seq) if end_pos == -1 else end_pos
-
-                # Replace the section of the sequence with 'N's
-                record.seq = (
-                    record.seq[:start_index] + masking_char * (end_index - start_index) + record.seq[end_index:]
-                )
+            if record.id in seq_ids:
+                tmp_data = target_sequences[target_sequences["seq_id"] == record.id]
+                print(tmp_data)
+                for section in tmp_data.itertuples():
+                    # Get target positions
+                    start_idx = 0 if section.start == -1 else section.start - 1
+                    end_idx = len(record.seq) if section.end == -1 else section.end
+                    # Replace the section of the sequence with 'N's
+                    record.seq = record.seq[:start_idx] + masking_char * (end_idx - start_idx) + record.seq[end_idx:]
+                    print(record.seq)
             if wrapping_len:
                 wrapped_sequence = wrap_sequence_string(sequence_string=str(record.seq), line_width=wrapping_len)
                 # Write new masked sequence to file
@@ -98,10 +97,22 @@ def parse_args() -> argparse.Namespace:  # pragma: no cover
 
     # Define the command-line arguments
     # The input FASTA file path
-    required_args.add_argument("-i", "--input", required=True, type=Path, help="The path to the input FASTA file.")
+    required_args.add_argument(
+        "-i",
+        "--input",
+        required=True,
+        type=Path,
+        help="The path to the input FASTA file.",
+    )
 
     # The output FASTA file path
-    required_args.add_argument("-o", "--output", required=True, type=Path, help="The path to the output FASTA file.")
+    required_args.add_argument(
+        "-o",
+        "--output",
+        required=True,
+        type=Path,
+        help="The path to the output FASTA file.",
+    )
 
     # The input file describing the sequences and positions to mask
     required_args.add_argument(
@@ -121,7 +132,12 @@ def parse_args() -> argparse.Namespace:  # pragma: no cover
 
     optional_args = parser.add_argument_group("Optional arguments:")
     # The masking character
-    optional_args.add_argument("-m", "--mask", default="N", help="The character to use for masking. Default: 'N'.")
+    optional_args.add_argument(
+        "-m",
+        "--mask",
+        default="N",
+        help="The character to use for masking. Default: 'N'.",
+    )
 
     # The length of the wrapped sequences
     optional_args.add_argument(
