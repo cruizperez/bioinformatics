@@ -1,13 +1,13 @@
 # Import the script and the required modules
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from bioinformatics.sequence_data.fasta_mask_sequence import (
     get_targets_from_config,
     modify_fasta,
 )
-import pandas as pd
 
 
 # Create a FASTA file for testing
@@ -15,11 +15,10 @@ import pandas as pd
 def input_fasta(tmp_path: Path) -> Path:
     """Create a FASTA file for testing"""
     input_fasta = tmp_path / "temp.fasta"
-    input_fasta_fh = open(input_fasta, "w")
-    input_fasta_fh.write(">seq1\nATCGATCGATCG\n")
-    input_fasta_fh.write(">seq2\nATCGATCGATCG\n")
-    input_fasta_fh.write(">seq3\nATCGATCGATCG\n")
-    input_fasta_fh.close()
+    with open(input_fasta, "w") as input_fasta_fh:
+        input_fasta_fh.write(">seq1\nATCGATCGATCG\n")
+        input_fasta_fh.write(">seq2\nATCGATCGATCG\n")
+        input_fasta_fh.write(">seq3\nATCGATCGATCG\n")
     return input_fasta
 
 
@@ -28,11 +27,10 @@ def input_fasta(tmp_path: Path) -> Path:
 def config_file(tmp_path: Path) -> Path:
     """Create a configuration file for testing"""
     config_file = tmp_path / "temp.config"
-    config_file_fh = open(config_file, "w")
-    config_file_fh.write("seq1\t1\t7\n")
-    config_file_fh.write("seq2\t\t\n")
-    config_file_fh.write("seq3\t5\t\n")
-    config_file_fh.close()
+    with open(config_file, "w") as config_file_fh:
+        config_file_fh.write("seq1\t1\t7\n")
+        config_file_fh.write("seq2\t\t\n")
+        config_file_fh.write("seq3\t5\t\n")
     return config_file
 
 

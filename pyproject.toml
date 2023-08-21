@@ -43,4 +43,4 @@ ignore_missing_imports = "True"
 addopts = "-p no:warnings"
 
 [tool.coverage.run]
-omit = ["*tests*"]
+omit = ["src/tests/unit/*/*.py"]

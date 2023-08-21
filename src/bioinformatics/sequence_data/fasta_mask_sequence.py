@@ -27,8 +27,8 @@ def get_targets_from_config(input_config: Path) -> pd.DataFrame:
     config = pd.read_csv(input_config, sep="\t", header=None)
     config.fillna(-1, inplace=True)
     config.columns = pd.core.indexes.base.Index(data=["seq_id", "start", "end"])
-    config['start'] = config['start'].astype(int)
-    config['end'] = config['end'].astype(int)
+    config["start"] = config["start"].astype(int)
+    config["end"] = config["end"].astype(int)
 
     # Return dataframe
     return config

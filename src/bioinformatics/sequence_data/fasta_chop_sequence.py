@@ -8,12 +8,18 @@ import argparse
 from pathlib import Path
 from sys import argv
 from typing import List, Optional
+
 from Bio import SeqIO
+
 from bioinformatics.sequence_data.helpers import wrap_sequence_string
 
 
 def chop_sequences(
-    input_file: Path, output_file: Path, config_file: Path, seq_len: int, wrap_len: Optional[int]
+    input_file: Path,
+    output_file: Path,
+    config_file: Path,
+    seq_len: int,
+    wrap_len: Optional[int] = None,
 ) -> None:
     """
     Reads a FASTA file and chops the sequences into smaller non-overlapping sequences of a given
@@ -94,7 +100,7 @@ def parse_args() -> argparse.Namespace:  # pragma: no cover
         "--config",
         required=True,
         type=Path,
-        help="The path to the configuration file. Must contain a single sequence ID per line."
+        help="The path to the configuration file. Must contain a single sequence ID per line.",
     )
 
     # The length of the chopped sequences
