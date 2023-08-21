@@ -69,11 +69,11 @@ def extract_from_fasta(
                     end_idx = len(record.seq) if section.end == -1 else section.end
                     # Get the new sequence id to extract and the sequence
                     new_id = f"{record.id}_{start_idx + 1}_{end_idx}"
-                    sub_sequence = record.seq[start_idx:end_idx]
-            if wrapping_len:
-                sub_sequence = wrap_sequence_string(sequence_string=str(sub_sequence), line_width=wrapping_len)
-            # Write new sequences to file
-            output.write(f">{new_id}\n{sub_sequence}\n")
+                    sub_sequence = str(record.seq[start_idx:end_idx])
+                    if wrapping_len:
+                        sub_sequence = wrap_sequence_string(sequence_string=sub_sequence, line_width=wrapping_len)
+                    # Write new sequences to file
+                    output.write(f">{new_id}\n{sub_sequence}\n")
 
 
 def parse_args() -> argparse.Namespace:  # pragma: no cover
