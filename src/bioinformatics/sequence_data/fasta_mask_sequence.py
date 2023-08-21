@@ -49,8 +49,7 @@ def modify_fasta(
     Args:
         input_file (Path): Input FASTA file.
         output_file (Path): Output FASTA file.
-        target_sequences (pd.DataFrame): Dataframe with sequences to mask in the keys and a tuple containing the
-            coordinates to mask as values.
+        target_sequences (pd.DataFrame): Dataframe with sequences to mask and the start and end positions to mask.
         masking_char (Optional[str], optional): Character to mask original sequence. Defaults to "N".
         wrapping_len (Optional[int], optional): Line length to which sequence should be wrapped. Defaults to None.
     """
@@ -67,14 +66,12 @@ def modify_fasta(
             # Check if the current sequence is the one we want to modify
             if record.id in seq_ids:
                 tmp_data = target_sequences[target_sequences["seq_id"] == record.id]
-                print(tmp_data)
                 for section in tmp_data.itertuples():
                     # Get target positions
                     start_idx = 0 if section.start == -1 else section.start - 1
                     end_idx = len(record.seq) if section.end == -1 else section.end
                     # Replace the section of the sequence with 'N's
                     record.seq = record.seq[:start_idx] + masking_char * (end_idx - start_idx) + record.seq[end_idx:]
-                    print(record.seq)
             if wrapping_len:
                 wrapped_sequence = wrap_sequence_string(sequence_string=str(record.seq), line_width=wrapping_len)
                 # Write new masked sequence to file
